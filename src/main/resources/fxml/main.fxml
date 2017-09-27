@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="principalBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="514.0" prefWidth="923.0" xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.xvhx.btc.controllers.ControllerFXML">
+	<center>
+		<TabPane fx:id="tabPane" prefHeight="342.0" prefWidth="493.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+			<tabs>
+				<Tab text="Best bids/asks">
+					<content>
+						<BorderPane prefHeight="200.0" prefWidth="200.0">
+							<top>
+								<VBox prefHeight="59.0" prefWidth="600.0" spacing="10.0" BorderPane.alignment="CENTER">
+									<children>
+										<HBox alignment="BASELINE_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+											<children>
+												<Label text="BITSO Trading Demo">
+													<font>
+														<Font size="16.0" />
+													</font>
+												</Label>
+												<Label text="&lt;x, m, n parameters label&gt;" fx:id="xmnParametersLabel1" />
+											</children>
+											<VBox.margin>
+												<Insets />
+											</VBox.margin>
+										</HBox>
+										<HBox alignment="BASELINE_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+											<children>
+												<Label text="Available Books:">
+													<font>
+														<Font size="16.0" />
+													</font>
+												</Label>
+												<Label fx:id="availableBooksLabel" alignment="CENTER" text="&lt;available books&gt;" />
+											</children>
+										</HBox>
+									</children>
+									<BorderPane.margin>
+										<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+									</BorderPane.margin>
+								</VBox>
+							</top>
+							<center>
+								<LineChart fx:id="bidsAsksChart" prefHeight="327.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+									<xAxis>
+										<NumberAxis side="BOTTOM" fx:id="xAxis" />
+									</xAxis>
+									<yAxis>
+										<NumberAxis fx:id="yAxis" layoutX="10.0" side="LEFT" />
+									</yAxis>
+								</LineChart>
+							</center>
+						</BorderPane>
+					</content>
+				</Tab>
+				<Tab text="Trades btc_mxn book">
+					<content>
+						<BorderPane prefHeight="200.0" prefWidth="200.0">
+							<top>
+								<VBox prefHeight="59.0" prefWidth="600.0" spacing="10.0" BorderPane.alignment="CENTER">
+									<children>
+										<HBox alignment="BASELINE_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+											<children>
+												<Label text="BITSO Trading Demo">
+													<font>
+														<Font size="16.0" />
+													</font>
+												</Label>
+                                    <Label text="&lt;x, m, n parameters label&gt;" fx:id="xmnParametersLabel2" />
+											</children>
+											<VBox.margin>
+												<Insets />
+											</VBox.margin>
+										</HBox>
+										<HBox alignment="BASELINE_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+											<children>
+												<Label prefHeight="25.0" prefWidth="199.0" text="Trades book BTC_MXN">
+													<font>
+														<Font size="16.0" />
+													</font>
+												</Label>
+												<Label fx:id="currentPriceLabel" alignment="CENTER" prefHeight="17.0" prefWidth="250.0" text="Current price: 1 BTC = &lt;current price&gt;" />
+                                    <Label fx:id="uptickDowntickLabel" alignment="CENTER" prefHeight="17.0" prefWidth="271.0" text="(upticks: &lt;upticks&gt;, downticks: &lt;downticks&gt;)" />
+                                    <Label fx:id="latestTradeIdLabel" alignment="CENTER" prefHeight="17.0" prefWidth="225.0" text="&lt;latest trade id&gt;" />
+											</children>
+										</HBox>
+									</children>
+									<BorderPane.margin>
+										<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+									</BorderPane.margin>
+								</VBox>
+							</top>
+                     <center>
+                        <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+                           <children>
+                              <TableView fx:id="tradesTableView" prefHeight="415.0" prefWidth="792.0">
+                                <columns>
+                                  <TableColumn fx:id="tradeIdColumn" prefWidth="75.0" text="Trade Id" />
+                                  <TableColumn fx:id="tradeTypeColumn" prefWidth="75.0" text="Trade Type" />
+                                    <TableColumn fx:id="markerSideColumn" prefWidth="75.0" text="Marker side" />
+                                    <TableColumn fx:id="tickTypeColumn" prefWidth="75.0" text="Tick Type" />
+                                    <TableColumn fx:id="timestampColumn" prefWidth="75.0" text="Timestamp" />
+                                    <TableColumn fx:id="amountColumn" prefWidth="75.0" text="Amount" />
+                                    <TableColumn fx:id="atColumn" prefWidth="75.0" text="\@" />
+                                    <TableColumn fx:id="rateColumn" prefWidth="75.0" text="Rate" />
+                                    <TableColumn fx:id="equalsColumn" prefWidth="75.0" text="=" />
+                                    <TableColumn fx:id="priceColumn" prefWidth="75.0" text="Price" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </VBox>
+                     </center>
+						</BorderPane>
+					</content>
+				</Tab>
+				<Tab text="Orderbook btc_mxn" />
+			</tabs>
+		</TabPane>
+	</center>
+</BorderPane>
