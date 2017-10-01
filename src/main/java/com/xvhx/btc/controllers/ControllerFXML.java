@@ -108,33 +108,6 @@ public class ControllerFXML implements Initializable {
 	@FXML
 	private TableColumn<Trade, String> priceColumn;
 
-	@Autowired
-	private DecimalFormat mxnCurrencyDecimalFormatter;
-
-	@Autowired
-	private ISO8601DateFormat iso8601TimestampFormatter;
-
-	@Autowired
-	private SimpleDateFormat timestampFormatter;
-
-	@Autowired
-	private BitsoTradingConfig bitsoTradingconfig;
-
-	@Resource
-	private StringProperty markerTradeId;
-
-	@Autowired
-	private LineChartOrdersListener lineChartMessageListener;
-
-	@Autowired
-	private BitsoAvailableBooksScheduledService bitsoAvailableBooksScheduledService;
-
-	@Autowired
-	private BitsoTradesScheduledService bitsoTradesScheduledService;
-
-	@Autowired
-	private OrderbookCoordinationScheduledService orderbookCoordinationScheduledService;
-
 	@FXML
 	private TableView<Bid> bidsTableView;
 
@@ -182,6 +155,33 @@ public class ControllerFXML implements Initializable {
 
 	@FXML
 	private Label lastSequenceIdLabel;
+
+	@Autowired
+	private DecimalFormat mxnCurrencyDecimalFormatter;
+
+	@Autowired
+	private ISO8601DateFormat iso8601TimestampFormatter;
+
+	@Autowired
+	private SimpleDateFormat timestampFormatter;
+
+	@Autowired
+	private BitsoTradingConfig bitsoTradingconfig;
+
+	@Resource
+	private StringProperty markerTradeId;
+
+	@Autowired
+	private LineChartOrdersListener lineChartMessageListener;
+
+	@Autowired
+	private BitsoAvailableBooksScheduledService bitsoAvailableBooksScheduledService;
+
+	@Autowired
+	private BitsoTradesScheduledService bitsoTradesScheduledService;
+
+	@Autowired
+	private OrderbookCoordinationScheduledService orderbookCoordinationScheduledService;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {

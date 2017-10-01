@@ -57,6 +57,9 @@ public class OrderbookCoordinationScheduledService extends ScheduledService<Void
 
 	private static boolean recallOrderBookRestEndpoint = false;
 
+	private Long prevSequenceId = null;
+	private boolean firstSequenceId = true;
+
 	@Autowired
 	private RestTemplate restTemplate;
 
@@ -70,8 +73,13 @@ public class OrderbookCoordinationScheduledService extends ScheduledService<Void
 		return this.sequence;
 	}
 
-	private Long prevSequenceId = null;
-	private boolean firstSequenceId = true;
+	public ObservableList<Ask> asks() {
+		return this.asks;
+	}
+
+	public ObservableList<Bid> bids() {
+		return this.bids;
+	}
 
 	@Override
 	protected Task<Void> createTask() {
@@ -117,8 +125,8 @@ public class OrderbookCoordinationScheduledService extends ScheduledService<Void
 
 											log.trace("sequence {} is cancelled", difforder.getSequence());
 
+											@SuppressWarnings("unused")
 											boolean found = false;
-											int index = -1;
 
 											Iterator<Bid> bidIterator = listBitsoBid.iterator();
 
@@ -133,22 +141,6 @@ public class OrderbookCoordinationScheduledService extends ScheduledService<Void
 											}
 
 											diffOrdersListener.getDifforders().poll();
-
-											/*for(int i=0; i<listBitsoBid.size(); i++){
-												Bid item = listBitsoBid.get(i);
-												
-												if(item.getOrderId().equals(difforder.getPayload().getOrderId())){
-													encontrado = true;
-													index = i;
-													break;
-												}
-											}
-											
-											if(encontrado){ // remove bid if found
-												listBitsoBid.remove(index);
-											} else { // If not found, remove from difforders queue
-												diffOrdersListener.getDifforders().poll();
-											}*/
 
 										} else if (difforder.getPayload().getStatus().equalsIgnoreCase("open")) { // add
 																													// element
@@ -185,8 +177,8 @@ public class OrderbookCoordinationScheduledService extends ScheduledService<Void
 
 											log.trace("sequence {} is cancelled", difforder.getSequence());
 
+											@SuppressWarnings("unused")
 											boolean found = false;
-											int index = -1;
 
 											Iterator<Ask> askIterator = listBitsoAsk.iterator();
 
@@ -201,22 +193,6 @@ public class OrderbookCoordinationScheduledService extends ScheduledService<Void
 											}
 
 											diffOrdersListener.getDifforders().poll();
-
-											/*for(int i=0; i<listBitsoAsk.size(); i++){
-												Ask item = listBitsoAsk.get(i);
-												
-												if(item.getOrderId().equals(difforder.getPayload().getOrderId())){
-													encontrado = true;
-													index = i;
-													break;
-												}
-											}
-											
-											if(encontrado){ // remove bid if found
-												listBitsoAsk.remove(index);
-											} else { // If not found, remove from difforders queue
-												diffOrdersListener.getDifforders().poll();
-											}*/
 
 										} else if (difforder.getPayload().getStatus().equalsIgnoreCase("open")) { // add
 																													// element
@@ -349,13 +325,5 @@ public class OrderbookCoordinationScheduledService extends ScheduledService<Void
 			}
 		};
 
-	}
-
-	public ObservableList<Ask> asks() {
-		return this.asks;
-	}
-
-	public ObservableList<Bid> bids() {
-		return this.bids;
 	}
 }

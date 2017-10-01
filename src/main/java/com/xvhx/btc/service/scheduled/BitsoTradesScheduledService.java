@@ -75,6 +75,10 @@ public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResp
 		return this.downtickCounter;
 	}
 
+	public ObservableList<Trade> getTrades() {
+		return this.trades;
+	}
+
 	@Override
 	protected Task<BitsoTradeResponse> createTask() {
 
@@ -265,10 +269,6 @@ public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResp
 			}
 		};
 
-	}
-
-	public ObservableList<Trade> getTrades() {
-		return this.trades;
 	}
 
 }
