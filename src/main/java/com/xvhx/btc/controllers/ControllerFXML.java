@@ -14,9 +14,12 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.xvhx.btc.config.BitsoTradingConfig;
+import com.xvhx.btc.domain.Ask;
+import com.xvhx.btc.domain.Bid;
 import com.xvhx.btc.domain.Trade;
 import com.xvhx.btc.service.scheduled.BitsoAvailableBooksScheduledService;
 import com.xvhx.btc.service.scheduled.BitsoTradesScheduledService;
+import com.xvhx.btc.service.scheduled.OrderbookCoordinationScheduledService;
 import com.xvhx.btc.websocket.listener.api.impl.LineChartOrdersListener;
 
 import javafx.beans.binding.Bindings;
@@ -129,15 +132,223 @@ public class ControllerFXML implements Initializable {
 	@Autowired
 	private BitsoTradesScheduledService bitsoTradesScheduledService;
 
+	@Autowired
+	private OrderbookCoordinationScheduledService orderbookCoordinationScheduledService;
+
+	@FXML
+	private TableView<Bid> bidsTableView;
+
+	@FXML
+	private TableView<Ask> asksTableView;
+
+	@FXML
+	private TableColumn<Bid, String> orderIdBidsTableColumn;
+
+	@FXML
+	private TableColumn<Bid, String> amountBidsTableColumn;
+
+	@FXML
+	private TableColumn<Bid, String> atBidsTableColumn;
+
+	@FXML
+	private TableColumn<Bid, String> rateBidsTableColumn;
+
+	@FXML
+	private TableColumn<Bid, String> equalsBidsTableColumn;
+
+	@FXML
+	private TableColumn<Bid, String> priceBidsTableColumn;
+
+	@FXML
+	private TableColumn<Ask, String> orderIdAsksTableColumn;
+
+	@FXML
+	private TableColumn<Ask, String> amountAsksTableColumn;
+
+	@FXML
+	private TableColumn<Ask, String> atAsksTableColumn;
+
+	@FXML
+	private TableColumn<Ask, String> rateAsksTableColumn;
+
+	@FXML
+	private TableColumn<Ask, String> equalsAsksTableColumn;
+
+	@FXML
+	private TableColumn<Ask, String> priceAsksTableColumn;
+
+	@FXML
+	private Label xmnParametersLabel3;
+
+	@FXML
+	private Label lastSequenceIdLabel;
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
-		setUpBestBidsAsksTab();
+		setupBestBidsAsksTab();
 
-		setUpTradesBook();
+		setupTradesBookTab();
+
+		setupOrderbookCoordinationTab();
 	}
 
-	private void setUpTradesBook() {
+	private void setupOrderbookCoordinationTab() {
+		orderbookCoordinationScheduledService.setPeriod(Duration.millis(150));
+		orderbookCoordinationScheduledService.setDelay(Duration.millis(10));
+		orderbookCoordinationScheduledService.start();
+
+		xmnParametersLabel3.textProperty().bind(xmnParametersLabel1.textProperty());
+		lastSequenceIdLabel.textProperty()
+				.bind(Bindings.concat("(sequence: ", orderbookCoordinationScheduledService.sequence(), ")"));
+
+		orderIdBidsTableColumn.setCellValueFactory(new PropertyValueFactory<>("orderId"));
+		orderIdBidsTableColumn.setPrefWidth(140);
+		orderIdBidsTableColumn.setResizable(false);
+
+		amountBidsTableColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+		amountBidsTableColumn.setPrefWidth(110);
+		amountBidsTableColumn.setResizable(false);
+		amountBidsTableColumn.setCellFactory(column -> new TableCell<Bid, String>() {
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item != null) {
+					setText(item + " BTC");
+				}
+			}
+		});
+
+		atBidsTableColumn.setCellFactory(column -> new TableCell<Bid, String>() {
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				setText("@");
+				setAlignment(Pos.CENTER);
+			}
+		});
+		atBidsTableColumn.setPrefWidth(30);
+		atBidsTableColumn.setResizable(false);
+
+		rateBidsTableColumn.setCellValueFactory(new PropertyValueFactory<>("rate"));
+		rateBidsTableColumn.setPrefWidth(120);
+		rateBidsTableColumn.setResizable(false);
+		rateBidsTableColumn.setCellFactory(column -> new TableCell<Bid, String>() {
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item != null) {
+					setText(mxnCurrencyDecimalFormatter.format(Double.valueOf(item)));
+				}
+			}
+		});
+
+		equalsBidsTableColumn.setCellFactory(column -> new TableCell<Bid, String>() {
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				setText("=");
+				setAlignment(Pos.CENTER);
+			}
+		});
+		equalsBidsTableColumn.setPrefWidth(30);
+		equalsBidsTableColumn.setResizable(false);
+
+		priceBidsTableColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+		priceBidsTableColumn.setPrefWidth(150);
+		priceBidsTableColumn.setResizable(false);
+		priceBidsTableColumn.setCellFactory(column -> new TableCell<Bid, String>() {
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item != null) {
+					setText(mxnCurrencyDecimalFormatter.format(Double.valueOf(item)));
+				}
+			}
+		});
+
+		// ---
+
+		orderIdAsksTableColumn.setCellValueFactory(new PropertyValueFactory<>("orderId"));
+		orderIdAsksTableColumn.setPrefWidth(140);
+		orderIdAsksTableColumn.setResizable(false);
+
+		amountAsksTableColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+		amountAsksTableColumn.setPrefWidth(110);
+		amountAsksTableColumn.setResizable(false);
+		amountAsksTableColumn.setCellFactory(column -> new TableCell<Ask, String>() {
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item != null) {
+					setText(item + " BTC");
+				}
+			}
+		});
+
+		atAsksTableColumn.setCellFactory(column -> new TableCell<Ask, String>() {
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				setText("@");
+				setAlignment(Pos.CENTER);
+			}
+		});
+		atAsksTableColumn.setPrefWidth(30);
+		atAsksTableColumn.setResizable(false);
+
+		rateAsksTableColumn.setCellValueFactory(new PropertyValueFactory<>("rate"));
+		rateAsksTableColumn.setPrefWidth(120);
+		rateAsksTableColumn.setResizable(false);
+		rateAsksTableColumn.setCellFactory(column -> new TableCell<Ask, String>() {
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item != null) {
+					setText(mxnCurrencyDecimalFormatter.format(Double.valueOf(item)));
+				}
+			}
+		});
+
+		equalsAsksTableColumn.setCellFactory(column -> new TableCell<Ask, String>() {
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				setText("=");
+				setAlignment(Pos.CENTER);
+			}
+		});
+		equalsAsksTableColumn.setPrefWidth(30);
+		equalsAsksTableColumn.setResizable(false);
+
+		priceAsksTableColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+		priceAsksTableColumn.setPrefWidth(150);
+		priceAsksTableColumn.setResizable(false);
+		priceAsksTableColumn.setCellFactory(column -> new TableCell<Ask, String>() {
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (item != null) {
+					setText(mxnCurrencyDecimalFormatter.format(Double.valueOf(item)));
+				}
+			}
+		});
+
+		// -----
+
+		bidsTableView.setItems(orderbookCoordinationScheduledService.bids());
+
+		bidsTableView.setFixedCellSize(25);
+
+		bidsTableView.prefHeightProperty().bind(
+				bidsTableView.fixedCellSizeProperty()
+						.multiply(Bindings.size(bidsTableView.getItems()).add(1.001d)));
+		bidsTableView.minHeightProperty().bind(bidsTableView.prefHeightProperty());
+		bidsTableView.maxHeightProperty().bind(bidsTableView.prefHeightProperty());
+
+		asksTableView.setItems(orderbookCoordinationScheduledService.asks());
+
+		asksTableView.setFixedCellSize(25);
+
+		asksTableView.prefHeightProperty().bind(
+				asksTableView.fixedCellSizeProperty()
+						.multiply(Bindings.size(asksTableView.getItems()).add(1.001d)));
+		asksTableView.minHeightProperty().bind(asksTableView.prefHeightProperty());
+		asksTableView.maxHeightProperty().bind(asksTableView.prefHeightProperty());
+
+	}
+
+	private void setupTradesBookTab() {
 
 		xmnParametersLabel2.textProperty().bind(xmnParametersLabel1.textProperty());
 
@@ -274,7 +485,7 @@ public class ControllerFXML implements Initializable {
 		}
 	}
 
-	private void setUpBestBidsAsksTab() {
+	private void setupBestBidsAsksTab() {
 
 		xmnParametersLabel1.textProperty().bind(
 				Bindings.concat("(X: ", bitsoTradingconfig.xProperty(), ", M: ", bitsoTradingconfig.mProperty(),

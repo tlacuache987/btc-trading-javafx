@@ -11,3 +11,16 @@
 .table-row-cell .text {
 	-fx-fill: black;
 }
+
+.chart-series-line {    
+    -fx-stroke-width: 2px;
+    -fx-effect: null;
+}
+ 
+.default-color0.chart-series-line { -fx-stroke: #1F77B4; }
+.default-color1.chart-series-line { -fx-stroke: #FF7F0E; }
+.default-color2.chart-series-line { -fx-stroke: #dda0dd; }
+
+.default-color0.chart-line-symbol { -fx-background-color: #1F77B4, #1F77B4; }
+.default-color1.chart-line-symbol { -fx-background-color: #FF7F0E, #FF7F0E; }
+.default-color2.chart-line-symbol { -fx-background-color: #dda0dd, #dda0dd; }

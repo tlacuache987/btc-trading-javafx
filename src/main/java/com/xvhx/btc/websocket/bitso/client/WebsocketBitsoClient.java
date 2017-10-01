@@ -1,12 +1,11 @@
 package com.xvhx.btc.websocket.bitso.client;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.websocket.ClientEndpoint;
@@ -23,6 +22,8 @@ import javax.websocket.WebSocketContainer;
 import com.google.gson.Gson;
 import com.xvhx.btc.bitso.domain.Ask;
 import com.xvhx.btc.bitso.domain.Bid;
+import com.xvhx.btc.bitso.domain.DiffOrder;
+import com.xvhx.btc.bitso.domain.DiffOrderPayLoad;
 import com.xvhx.btc.bitso.domain.OrderPayload;
 import com.xvhx.btc.bitso.domain.Orders;
 import com.xvhx.btc.websocket.listener.api.MessageListener;
@@ -33,7 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 @ClientEndpoint
 public class WebsocketBitsoClient {
 
-	private final List<MessageListener<Orders>> listeners = new ArrayList<>();
+	private final List<MessageListener<Orders>> ordersListeners = new ArrayList<>();
+	private final List<MessageListener<DiffOrder>> diffOrdersListeners = new ArrayList<>();
 
 	private final URI serverEndpoint;
 	private Gson gson;
@@ -56,13 +58,46 @@ public class WebsocketBitsoClient {
 		if (!map.containsKey("action") && map.containsKey("type")
 				&& map.get("type").equals("orders")) {
 
-			listeners.stream().forEach(messageListener -> messageListener.onMessage(parseOrder(map)));
+			if (ordersListeners.size() > 0) {
+				ordersListeners.stream().forEach(messageListener -> messageListener.onMessage(parseOrder(map)));
+				log.trace("message has sent to orders listeners");
+			}
+		} else if (!map.containsKey("action") && map.containsKey("type")
+				&& map.get("type").equals("diff-orders")) {
+
+			if (diffOrdersListeners.size() > 0) {
+				diffOrdersListeners.stream().forEach(messageListener -> messageListener.onMessage(parseDiffOrder(map)));
+				log.trace("message has sent to difforders listeners");
+			}
 		}
 
 	}
 
-	private Orders parseOrder(Map<String, Object> map) {
+	private DiffOrder parseDiffOrder(Map<String, Object> map) {
+		DiffOrder diffOrder = new DiffOrder();
+		diffOrder.setType(map.get("type").toString());
+		diffOrder.setBook(map.get("book").toString());
+		diffOrder.setSequence(((Double) map.get("sequence")).longValue());
+		diffOrder.setPayload(new DiffOrderPayLoad());
 
+		@SuppressWarnings("unchecked")
+		Map<String, Object> payload = ((List<Map<String, Object>>) map.get("payload")).get(0);
+
+		diffOrder.getPayload().setOrderId(payload.get("o").toString());
+		diffOrder.getPayload().setTimestamp(((Double) payload.get("d")).longValue());
+		diffOrder.getPayload().setRate(payload.get("r").toString());
+		diffOrder.getPayload().setType(((Double) payload.get("t")).intValue());
+		diffOrder.getPayload().setStatus(payload.get("s").toString());
+
+		if (diffOrder.getPayload().getStatus().equals("open")) {
+			diffOrder.getPayload().setAmount(payload.get("a").toString());
+			diffOrder.getPayload().setValue(payload.get("v").toString());
+		}
+
+		return diffOrder;
+	}
+
+	private Orders parseOrder(Map<String, Object> map) {
 		Orders orders = new Orders();
 		orders.setType((String) map.get("type"));
 		orders.setBook((String) map.get("book"));
@@ -118,8 +153,12 @@ public class WebsocketBitsoClient {
 			retryReconnect();
 	}
 
-	public void addListener(MessageListener<Orders> listener) {
-		listeners.add(listener);
+	public void addOrdersListener(MessageListener<Orders> listener) {
+		ordersListeners.add(listener);
+	}
+
+	public void addDiffOrdersListener(MessageListener<DiffOrder> listener) {
+		diffOrdersListeners.add(listener);
 	}
 
 	public void connect() {
@@ -129,6 +168,8 @@ public class WebsocketBitsoClient {
 
 			session.getBasicRemote()
 					.sendText("{ \"action\": \"subscribe\", \"book\": \"btc_mxn\", \"type\": \"orders\" }");
+			session.getBasicRemote()
+					.sendText("{ \"action\": \"subscribe\", \"book\": \"btc_mxn\", \"type\": \"diff-orders\" }");
 		} catch (DeploymentException | IOException e) {
 			log.error(e.getMessage());
 		}
@@ -157,7 +198,7 @@ public class WebsocketBitsoClient {
 
 	private void retryReconnect() {
 		try {
-			SECONDS.sleep(2);
+			TimeUnit.SECONDS.sleep(2);
 			connect();
 		} catch (InterruptedException e) {
 			log.error(e.getMessage());

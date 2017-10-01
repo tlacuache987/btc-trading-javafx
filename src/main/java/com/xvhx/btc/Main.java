@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
 	private ApplicationContext applicationContext;
+
 	private Parent root;
 
 	public static void main(String[] args) {

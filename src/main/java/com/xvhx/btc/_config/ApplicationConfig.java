@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.google.gson.Gson;
 import com.xvhx.btc.config.BitsoTradingConfig;
 import com.xvhx.btc.websocket.bitso.client.WebsocketBitsoClient;
+import com.xvhx.btc.websocket.listener.api.impl.DiffOrdersListener;
 import com.xvhx.btc.websocket.listener.api.impl.LineChartOrdersListener;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -35,16 +36,25 @@ public class ApplicationConfig {
 	}
 
 	@Bean(initMethod = "connect", destroyMethod = "closeWithoutReconnect")
-	public WebsocketBitsoClient wsclient(LineChartOrdersListener lineChartMessageListener, Gson gson) {
+	public WebsocketBitsoClient wsclient(LineChartOrdersListener lineChartMessageListener,
+			DiffOrdersListener diffOrdersListener, Gson gson) {
+
 		WebsocketBitsoClient wsclient = new WebsocketBitsoClient("wss://ws.bitso.com", gson);
 
-		wsclient.addListener(lineChartMessageListener);
+		wsclient.addOrdersListener(lineChartMessageListener);
+		wsclient.addDiffOrdersListener(diffOrdersListener);
+
 		return wsclient;
 	}
 
 	@Bean
-	public LineChartOrdersListener lineChartMessageListener(BitsoTradingConfig config) {
+	public LineChartOrdersListener lineChartOrdersListener(BitsoTradingConfig config) {
 		return new LineChartOrdersListener(config);
+	}
+
+	@Bean
+	public DiffOrdersListener diffOrdersListener() {
+		return new DiffOrdersListener();
 	}
 
 	@Bean

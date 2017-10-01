@@ -10,7 +10,7 @@
 		</layout>
 	</appender>
 
-	<logger name="com.xvhx.btc" level="info" additivity="false">
+	<logger name="com.xvhx.btc.service.scheduled" level="trace" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 

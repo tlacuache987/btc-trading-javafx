@@ -17,7 +17,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.xvhx.btc.api.rest.domain.BitsoAvailableBooksResponse;
 
 import javafx.concurrent.Task;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @Scope("prototype")
 public class BitsoAvailableBooksScheduledTask extends Task<BitsoAvailableBooksResponse> {
@@ -42,13 +44,17 @@ public class BitsoAvailableBooksScheduledTask extends Task<BitsoAvailableBooksRe
 
 		URI uri = builder.build().encode().toUri();
 
+		log.debug("Requesting {} ", uri);
+
 		try {
 			response = restTemplate.exchange(uri, HttpMethod.GET, entity, BitsoAvailableBooksResponse.class);
 		} catch (Exception ex) {
-			System.err.println(ex.getMessage());
+			log.error(ex.getMessage());
 		}
 
-		return response.getBody();
+		if (response != null)
+			return response.getBody();
+		return null;
 	}
 
 }

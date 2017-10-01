@@ -33,7 +33,9 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResponse> {
 
@@ -54,6 +56,7 @@ public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResp
 
 	@Resource
 	private StringProperty markerTradeId;
+
 	@Autowired
 	private BitsoTradingConfig bitsoTradingConfig;
 
@@ -96,12 +99,12 @@ public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResp
 
 				URI uri = builder.build().encode().toUri();
 
-				System.out.println(++totalExecutions + ") " + uri);
+				log.debug("{}) requesting {} ", (++totalExecutions), uri);
 
 				try {
 					response = restTemplate.exchange(uri, HttpMethod.GET, entity, BitsoTradeResponse.class);
 				} catch (Exception ex) {
-					System.err.println(ex.getMessage());
+					log.error(ex.getMessage());
 				}
 
 				final String lastMarkerId = String.valueOf(response.getBody().getPayload().stream()
@@ -136,7 +139,7 @@ public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResp
 
 						setTicks(listTrades);
 					} catch (Exception ex) {
-						System.err.println(ex.getMessage());
+						log.error(ex.getMessage());
 					}
 
 					if (firstExecution) {
@@ -173,6 +176,8 @@ public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResp
 								if (prevTrade.getRate().equals(elements.get(i).getRate())) {
 									elements.get(i).setTickType("zero-tick");
 
+									log.trace("zero-tick !");
+
 								} else if (Double.valueOf(prevTrade.getRate()) > Double
 										.valueOf(elements.get(i).getRate())) {
 
@@ -180,6 +185,9 @@ public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResp
 
 									if (analizeNextTrades) {
 										downtickCounter.set(downtickCounter.get() + 1);
+
+										log.trace("downtick up !");
+
 										upticksCounter.set(0);
 
 										if (verifyBuyFakeTrade(elements, i)) {
@@ -195,6 +203,9 @@ public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResp
 
 									if (analizeNextTrades) {
 										upticksCounter.set(upticksCounter.get() + 1);
+
+										log.trace("uptick up !");
+
 										downtickCounter.set(0);
 
 										if (verifySellFakeTrade(elements, i)) {
@@ -218,6 +229,7 @@ public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResp
 					Trade fakeTrade = createFakeTrade("SELL");
 
 					elements.add(index, fakeTrade);
+					log.trace("adding SELL fake trade");
 
 					upticksCounter.set(0);
 					return true;
@@ -231,6 +243,7 @@ public class BitsoTradesScheduledService extends ScheduledService<BitsoTradeResp
 					Trade fakeTrade = createFakeTrade("BUY");
 
 					elements.add(index, fakeTrade);
+					log.trace("adding BUY fake trade");
 
 					downtickCounter.set(0);
 					return true;

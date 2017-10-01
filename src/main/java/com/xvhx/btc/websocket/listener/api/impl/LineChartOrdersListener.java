@@ -10,13 +10,10 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LineChartOrdersListener implements MessageListener<Orders> {
-
-	// private ObservableList<XYChart.Series<Number, Number>> asks =
-	// observableArrayList();
-	// private ObservableList<XYChart.Series<Number, Number>> bids =
-	// observableArrayList();
 
 	private ObservableList<XYChart.Series<Number, Number>> lines = observableArrayList();
 
@@ -43,14 +40,6 @@ public class LineChartOrdersListener implements MessageListener<Orders> {
 		return maxProperty;
 	}
 
-	/*public ObservableList<XYChart.Series<Number, Number>> getAsks() {
-		return asks;
-	}
-	
-	public ObservableList<XYChart.Series<Number, Number>> getBids() {
-		return bids;
-	}*/
-
 	public ObservableList<XYChart.Series<Number, Number>> getLines() {
 		return lines;
 	}
@@ -60,10 +49,10 @@ public class LineChartOrdersListener implements MessageListener<Orders> {
 	public void onMessage(Orders message) {
 
 		XYChart.Series<Number, Number> askSerie = new XYChart.Series<>();
-		askSerie.setName("Best Asks");
+		askSerie.setName("asks");
 
 		XYChart.Series<Number, Number> bidSerie = new XYChart.Series<>();
-		bidSerie.setName("Best Bids");
+		bidSerie.setName("bids");
 
 		double max = Integer.MIN_VALUE;
 		double min = Integer.MAX_VALUE;
@@ -84,6 +73,8 @@ public class LineChartOrdersListener implements MessageListener<Orders> {
 
 		}
 
+		log.debug("Ask line serie chart set");
+
 		for (int i = 0; i < message.getPayload().getBids().size(); i++) {
 
 			Double rate = Double.valueOf(message.getPayload().getBids().get(i).getRate());
@@ -100,13 +91,20 @@ public class LineChartOrdersListener implements MessageListener<Orders> {
 			}
 		}
 
+		log.debug("Bid line serie chart set");
+
 		minProperty.set(min - 100);
+
+		log.trace("min Y axis set");
+
 		maxProperty.set(max + 100);
 
+		log.trace("max Y axis set");
+
 		Platform.runLater(() -> {
-			// asks.setAll(askSerie);
-			// bids.setAll(bidSerie);
-			lines.setAll(askSerie, bidSerie);
+			lines.setAll(bidSerie, askSerie);
+
+			log.debug("Bind Ask and Bid line serie to chart");
 		});
 	}
 
